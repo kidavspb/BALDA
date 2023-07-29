@@ -95,7 +95,7 @@ for n in range(1, 8):
     start = time.time()
 
     for i in range(n ** 2):
-        for j in range(n ** 2):
+        for j in range(i+1, n ** 2):
             src = i
             dst = j
             print("Following are all different paths from %d to %d:" % (src, dst))
@@ -103,6 +103,7 @@ for n in range(1, 8):
 
     end = time.time()
 
+    counter = counter * 2 + n**2
     answer = f"\n{n}x{n} - {counter} (time taken: {round(end - start, 2)} seconds)"
     print(answer)
 
