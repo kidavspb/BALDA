@@ -1,113 +1,76 @@
-# Python program to print all paths from a source to destination.
 import time
-from collections import defaultdict
+import numba as nb
+import numpy as np
 
 
-# This class represents a directed graph
-# using adjacency list representation
-class Graph:
+@nb.njit
+def findAllPaths(graph, src, dst, visited):
+    counter = 0
+    visited[src] = True
 
-    def __init__(self, vertices):
-        # No. of vertices
-        self.V = vertices
+    if src == dst:
+        counter += 1
+    else:
+        for i in range(graph.shape[1]):
+            neighbor = graph[src, i]
+            if neighbor != -1 and not visited[neighbor]:
+                counter += findAllPaths(graph, neighbor, dst, visited)
 
-        # default dictionary to store graph
-        self.graph = defaultdict(list)
-
-    # function to add an edge to graph
-    def addEdge(self, u, v):
-        self.graph[u].append(v)
-
-    '''A recursive function to print all paths from 'u' to 'd'.
-    visited[] keeps track of vertices in current path.
-    path[] stores actual vertices and path_index is current
-    index in path[]'''
-
-    def printAllPathsUtil(self, u, d, visited, path):
-        global counter
-
-        # Mark the current node as visited and store in path
-        visited[u] = True
-        path.append(u)
-
-        # If current vertex is same as destination, then print
-        # current path[]
-        if u == d:
-            print(path)
-            counter += 1
-        else:
-            # If current vertex is not destination
-            # Recur for all the vertices adjacent to this vertex
-            for i in self.graph[u]:
-                if visited[i] == False:
-                    self.printAllPathsUtil(i, d, visited, path)
-
-        # Remove current vertex from path[] and mark it as unvisited
-        path.pop()
-        visited[u] = False
-
-    # Prints all paths from 's' to 'd'
-    def printAllPaths(self, s, d):
-
-        # Mark all the vertices as not visited
-        visited = [False] * (self.V)
-
-        # Create an array to store paths
-        path = []
-
-        # Call the recursive helper function to print all paths
-        self.printAllPathsUtil(s, d, visited, path)
+    visited[src] = False
+    return counter
 
 
 def make_edges(n):
+    graph = np.empty((n ** 2, 4), dtype=np.int8)
+    graph.fill(-1)
+
     if n < 2:
-        return
+        return graph
 
     for layer in range(1, n + 1):
         prev_layer = layer - 1
         for i in range(prev_layer ** 2, layer ** 2):
-            # next edges
+            neighbors = []
             if layer != n:
                 if i < prev_layer ** 2 + layer:  # right
-                    g.addEdge(i, i + (2 * layer - 1))
+                    neighbors.append(i + (2 * layer - 1))
                 if i >= prev_layer ** 2 + prev_layer:  # down
-                    g.addEdge(i, i + (2 * layer + 1))
+                    neighbors.append(i + (2 * layer + 1))
 
-            # back edges
             if i < prev_layer ** 2 + prev_layer:  # left
-                g.addEdge(i, i - (2 * prev_layer - 1))
+                neighbors.append(i - (2 * prev_layer - 1))
             elif i > prev_layer ** 2 + prev_layer:  # up
-                g.addEdge(i, i - (2 * prev_layer + 1))
+                neighbors.append(i - (2 * prev_layer + 1))
 
-            # side edges
             if i < layer ** 2 - 1:
-                g.addEdge(i, i + 1)
+                neighbors.append(i + 1)
             if i > prev_layer ** 2:
-                g.addEdge(i, i - 1)
+                neighbors.append(i - 1)
+
+            graph[i, :len(neighbors)] = neighbors
+
+    return graph
 
 
-for n in range(1, 8):
-    g = Graph(n ** 2)
-    make_edges(n)
+if __name__ == "__main__":
+    for n in range(1, 8):
+        graph = make_edges(n)
 
-    counter = 0
-    src = dst = 0
-    start = time.time()
+        counter = delta = 0
+        visited = np.zeros(n ** 2, dtype=np.bool_)
+        start = time.time()
 
-    for i in range(n ** 2):
-        for j in range(i+1, n ** 2):
-            src = i
-            dst = j
-            print("Following are all different paths from %d to %d:" % (src, dst))
-            g.printAllPaths(src, dst)
+        for src in range(n ** 2):
+            for dst in range(src + 1, n ** 2):
+                delta = findAllPaths(graph, src, dst, visited)
+                counter += delta
+                print(f"Following are all different paths from {src} to {dst}: {delta}")
 
-    end = time.time()
+        end = time.time()
 
-    counter = counter * 2 + n**2
-    answer = f"\n{n}x{n} - {counter} (time taken: {round(end - start, 2)} seconds)"
-    print(answer)
+        counter = counter * 2 + n ** 2
+        answer = f"\n{n}x{n} - {counter} (time taken: {round(end - start, 2)} seconds)"
+        print(answer)
 
-    with open("output.txt", "a") as f:
-        f.write(answer)
-
-# This code is contributed by Neelam Yadav
+        with open("output.txt", "a") as f:
+            f.write(answer)
