@@ -25,11 +25,11 @@ To solve this problem, we consider the Balda grid as a square [lattice graph](ht
 The final formula for the maximum possible number of words in Balda at different grid sizes has not yet been found, so research is ongoing. But the following estimates were experimentally obtained for different dimensions:
 
 | Dimension | Number of all pathes | Computation time |
-| --------: | -------------------: | ---------------: |
-| 1х1       | 1                    | 0.0 seconds      |
-| 2х2       | 28                   | 0.59 seconds     |
-| 3х3       | 653                  | 0.01 seconds     |
-| 4х4       | 28512                | 0.01 seconds     |
-| 5х5       | 3060417              | 0.45 seconds     |
-| 6х6       | 873239772            | 94.22 seconds    |
-| 7х7       | 687430009069         | 92382.16 seconds |
+| --------: | -------------------: |-----------------:|
+| 1х1       | 1                    |        0 seconds |
+| 2х2       | 28                   |        0 seconds |
+| 3х3       | 653                  |        0 seconds |
+| 4х4       | 28512                |        0 seconds |
+| 5х5       | 3060417              |        0 seconds |
+| 6х6       | 873239772            |        6 seconds |
+| 7х7       | 687430009069         |     6535 seconds |
